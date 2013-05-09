@@ -99,12 +99,14 @@ migration.migrate = function () {
             .replace(/<div class\=\"zemanta\-pixie\"(.*)/g, '').replace(/\n<\/span><\/div>/g, '')
             // append a new line to closing tags to make it clear to HTML parsers what's going on
             .replace(/<\/(\w+)>/g, '</$1>\n')
+            // tabs cause markdown to get confused
+            .replace(/\t/g, '')
             // add the metadata
             + metadata
 
 
           // if (/\[caption(.*) caption\=\"(.*)\"\](.*)\[\/caption\]/.test(content)) console.log(meta.title, content)
-          console.log(content.indexOf('<!--more-->') ? 'has more' : null)
+          // console.log(content.indexOf('<!--more-->') ? 'has more' : null)
 
           fs.writeFile('./posts/' + fileName + '.md', content, function (err) {
             if (err) throw err
