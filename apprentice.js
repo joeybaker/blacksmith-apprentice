@@ -1,3 +1,4 @@
+'use strict';
 var mysql  = require('mysql')
   , events = require('events')
   , mkdirp = require('mkdirp')
@@ -66,29 +67,28 @@ migration.migrate = function () {
 
       res.forEach (function (val) {
 
-        var dirTitle = val.dir
+        var fileName = val.dir
 
-        mkdirp('./output/' + dirTitle, function (err) {
+        mkdirp('./posts/', function (err) {
           if (err) throw err
 
-          var page = {
+          var meta = {
             'title': val.title,
             'author': val.author,
             'date': new Date(val.date * 1000).toISOString(),
-            'summary': val.summary,
+            'summary': val.summary.replace('\n', ''),
             'dsqId': val.dsq
           }
+          , metadata = '\n\n'
 
+          for (var key in meta){
+            if (meta[key]) metadata += '[meta:' + key + ']: <> (' + meta[key] + ')\n'
+          }
 
-          page = JSON.stringify(page)
+          var content = val.body.replace('<!--more-->', '\n\n##!!truncate\n\n') + metadata
 
-          var content = val.body.replace('<!--more-->', '##')
-
-          fs.writeFile('./output/' + dirTitle + '/content.md', content, function (err) {
+          fs.writeFile('./posts/' + fileName + '.md', content, function (err) {
             if (err) throw err
-            fs.writeFile('./output/' + dirTitle + '/page.json', page, function (err) {
-              if (err) throw err
-            })
           })
         })
       })
