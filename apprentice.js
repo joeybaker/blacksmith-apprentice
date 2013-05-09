@@ -66,7 +66,7 @@ migration.migrate = function () {
 
       res.forEach (function (val) {
 
-        var dir_title = val.title.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-');
+        var dirTitle = val.dir
 
         mkdirp('./output/' + dirTitle, function (err) {
           if (err) throw err
@@ -75,6 +75,8 @@ migration.migrate = function () {
             'title': val.title,
             'author': val.author,
             'date': new Date(val.date * 1000).toISOString(),
+            'summary': val.summary,
+            'dsqId': val.dsq
           }
 
 

@@ -1,4 +1,7 @@
 {
   "habari": "select posts.title, posts.pubdate as date, posts.content as body, users.username as author from [PREFIX]posts as posts, [PREFIX]users as users where posts.user_id = users.id",
-  "wordpress": "select posts.post_title as title, users.display_name as author, unix_timestamp(posts.post_date) as date, posts.post_content as body from [PREFIX]posts as posts, [PREFIX]users as users where posts.post_type='post' and posts.post_author = users.id"
+  "wordpress": "select posts.post_title as title, users.display_name as author, unix_timestamp(posts.post_date) as date, posts.post_content as body, posts.post_excerpt as summary, posts.post_name as dir, meta.meta_value as dsq from [PREFIX]posts as posts, [PREFIX]users as users, [PREFIX]postmeta as meta where posts.post_type='post' and posts.post_author = users.id AND (meta.post_id = posts.ID AND meta.meta_key = 'dsq_thread_id')"
 }
+
+
+
