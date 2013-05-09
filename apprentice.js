@@ -73,19 +73,38 @@ migration.migrate = function () {
           if (err) throw err
 
           var meta = {
-            'title': val.title,
-            'author': val.author,
-            'date': new Date(val.date * 1000).toISOString(),
-            'summary': val.summary.replace('\n', ''),
-            'dsqId': val.dsq
-          }
-          , metadata = '\n\n'
+              'title': val.title,
+              'author': val.author + ' Baker',
+              'date': new Date(val.date * 1000).toISOString(),
+              'summary': val.summary.replace(/\r|\n/g, ''),
+              'dsqId': val.dsq
+            }
+            , metadata = '\n\n'
+            , content
+
 
           for (var key in meta){
             if (meta[key]) metadata += '[meta:' + key + ']: <> (' + meta[key] + ')\n'
           }
 
-          var content = val.body.replace('<!--more-->', '\n\n##!!truncate\n\n') + metadata
+          // cleanup the content
+          content = val.body
+            // WP has custom "caption" elements, we'll turn those into <figure>
+            .replace(/\[caption(.*) caption\=\"(.*)\"\](.*)\[\/caption\]/g, '<figure>$3<figcaption>$2</figcaption></figure>')
+            // convert to Blacksmith's truncate syntax
+            .replace(/<\!--more-->/g, '\n\n##!!truncate\n\n')
+            // kill empty paragraphs
+            .replace(/<p><\/p>/g, '').replace(/<p>\&nbsp;<\/p>/g, '')
+            // the zemanta plugin leaves crap behind
+            .replace(/<div class\=\"zemanta\-pixie\"(.*)/g, '').replace(/\n<\/span><\/div>/g, '')
+            // append a new line to closing tags to make it clear to HTML parsers what's going on
+            .replace(/<\/(\w+)>/g, '</$1>\n')
+            // add the metadata
+            + metadata
+
+
+          // if (/\[caption(.*) caption\=\"(.*)\"\](.*)\[\/caption\]/.test(content)) console.log(meta.title, content)
+          console.log(content.indexOf('<!--more-->') ? 'has more' : null)
 
           fs.writeFile('./posts/' + fileName + '.md', content, function (err) {
             if (err) throw err
