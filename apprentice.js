@@ -1,96 +1,97 @@
 var mysql  = require('mysql')
   , events = require('events')
   , mkdirp = require('mkdirp')
-  , fs     = require('fs');
+  , fs     = require('fs')
+  , migrateSteps = new events.EventEmitter()
+  , migration = {}
 
-  
-var migrate_steps = new events.EventEmitter()
-  , migration = {};
-
-migrate_steps.on('db_config', function (msg) {
+migrateSteps.on('dbConfig', function () {
   console.log('database configured...\n')
-  migration.create_query();
-});
+  migration.createQuery()
+})
 
-migrate_steps.on('query_ready', function (msg) {
-  migration.migrate();
-});
+migrateSteps.on('query_ready', function () {
+  migration.migrate()
+})
 
-migration.configure_db = function () {
-  fs.readFile('config.json', encoding='utf8', function (err, data) {
-    if (err) throw err;
+migration.configureDb = function () {
+  fs.readFile('config.json', 'utf8', function (err, data) {
+    if (err) throw err
+    var config
     try {
-      var config = JSON.parse(data);
+      config = JSON.parse(data)
     }
     catch (e) {
-      console.error("error parsing config.json \n\n" + e);
+      console.error('error parsing config.json \n\n' + e)
     }
 
-    migration.db_config = config;
-    migrate_steps.emit('db_config', config);
-  });
+    migration.dbConfig = config
+    migrateSteps.emit('dbConfig', config)
+  })
 }
 
-migration.create_query = function () {
-  fs.readFile('blogs.json', encoding='utf8', function (err, data) {
-  if (err) throw err;
-  try {
-    var blogs = JSON.parse(data);
-  }
-  catch (e) {
-    console.error("error parsing blogs.json \n\n" + e);
-  }
+migration.createQuery = function () {
+  fs.readFile('blogs.json', 'utf8', function (err, data) {
+    if (err) throw err
+    var blogs
 
-  migration.query = blogs[migration.db_config.engine].replace(/\[PREFIX\]/g, migration.db_config.table_prefix);
-  migrate_steps.emit('query_ready', migration.query);
+    try {
+      blogs = JSON.parse(data)
+    }
+    catch (e) {
+      console.error('error parsing blogs.json \n\n' + e)
+    }
 
-  });
+    migration.query = blogs[migration.dbConfig.engine].replace(/\[PREFIX\]/g, migration.dbConfig.tablePrefix)
+    migrateSteps.emit('query_ready', migration.query)
+
+  })
 
 }
 
-migration.configure_db();
+migration.configureDb()
 
 migration.migrate = function () {
-  
-  var client = mysql.createClient({
-    user: migration.db_config.db_user,
-    password: migration.db_config.db_pass,
-  });
 
-  client.query('use ' + migration.db_config.db_name, function (err) {
-    if (err) throw err;
+  var client = mysql.createClient({
+    user: migration.dbConfig.dbUser,
+    password: migration.dbConfig.dbPass,
+  })
+
+  client.query('use ' + migration.dbConfig.dbName, function (err) {
+    if (err) throw err
 
     client.query(migration.query, function (err, res) {
-      if (err) throw err;
+      if (err) throw err
 
-      res.forEach (function (val, key) {
-        
+      res.forEach (function (val) {
+
         var dir_title = val.title.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-');
 
-        mkdirp('./output/' + dir_title, function (err) {
-          if (err) throw err;
+        mkdirp('./output/' + dirTitle, function (err) {
+          if (err) throw err
 
           var page = {
-            "title": val.title,
-            "author": val.author,
-            "date": new Date(val.date * 1000).toISOString()
-          };
+            'title': val.title,
+            'author': val.author,
+            'date': new Date(val.date * 1000).toISOString(),
+          }
 
 
-          page = JSON.stringify(page);
+          page = JSON.stringify(page)
 
-	  var content = val.body.replace("<!--more-->", "##");
+          var content = val.body.replace('<!--more-->', '##')
 
-          fs.writeFile('./output/' + dir_title + '/content.md', content, function (err) {
-            if (err) throw err;
-            fs.writeFile('./output/' + dir_title + '/page.json', page, function (err) {
-              if (err) throw err;
-            });
-          });
-        });
-      });
-      client.end();
-    });
-  });
+          fs.writeFile('./output/' + dirTitle + '/content.md', content, function (err) {
+            if (err) throw err
+            fs.writeFile('./output/' + dirTitle + '/page.json', page, function (err) {
+              if (err) throw err
+            })
+          })
+        })
+      })
+      client.end()
+    })
+  })
 
 }

@@ -1,8 +1,8 @@
 {
   "engine": "wordpress",
-  "db_host": "localhost",
-  "db_user": "root",
-  "db_pass": "",
-  "db_name": "database_name",
-  "table_prefix": "wp_"
+  "dbHost": "localhost",
+  "dbUser": "root",
+  "dbPass": "",
+  "dbName": "b",
+  "tablePrefix": "wp_"
 }

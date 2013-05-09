@@ -13,7 +13,7 @@ But adding support for [your current blog software] is as trivial as writing a M
 
 1. Run `npm install blacksmith-apprentice`.
 2. Edit `config.json` to include your database details and its current blog engine.
-3. run `node apprentice.js`. Apprentice will create an output directory containing the blacksmith-formatted posts. These can be put in your blacksmith site's pages directory.
+3. run `node apprentice.js`. Apprentice will create an output directory containing the blacksmith-formatted posts. These can be put in your blacksmith site's `pages` directory.
 4. These pages will be converted to HTML with your other posts next time you run `blacksmith generate`.
 
 **Notes**

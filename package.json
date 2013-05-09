@@ -1,7 +1,14 @@
 {
   "name": "blacksmith-apprentice",
   "version": "0.0.1",
-  "author": "Luke Arduini <luke.arduini@me.com>",
+  "author": {
+    "name": "Luke Arduini",
+    "email": "luke.arduini@me.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joeybaker/blacksmith-apprentice"
+  },
   "description": "blacksmith migration tool for blogs",
   "dependencies": {
     "mysql": "0.9.x",
